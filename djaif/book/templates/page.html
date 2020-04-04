@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.book.title }}: {{ page.title }}</title>
+  </head>
+  <body>
+    {{ page.body }}
+    <ul>
+      {% for link in page.pagelink_set.all %}
+      <li><a href="{% url 'page' page.book.id link.to_page.id %}">
+        {{ link.name }}
+      </a></li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
