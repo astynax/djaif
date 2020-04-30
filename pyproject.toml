@@ -11,10 +11,12 @@ Pillow = "^7.1.1"
 
 [tool.poetry.dev-dependencies]
 wemake-python-styleguide = "^0.14.0"
+jedi = "^0.17.0"
+black = "^19.10b0"
+
+[tool.black]
+skip-string-normalization=true
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-
-[tool.black]
-skip-string-normalization=true

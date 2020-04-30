@@ -3,7 +3,6 @@ from django.db import models
 
 # Create your models here.
 class Book(models.Model):
-    """Interactive function."""
     title = models.TextField(name='title', unique=True)
     first_page = models.ForeignKey(
         'BookPage', null=True, on_delete=models.SET_NULL,
