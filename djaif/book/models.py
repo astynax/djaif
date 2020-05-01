@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -19,6 +20,8 @@ class BookPage(models.Model):
     title = models.TextField(name='title')
     body = models.TextField(name='body')
 
+    items = models.ManyToManyField('book.Item', blank=True)  # noqa: WPS110
+
     def __str__(self):
         return '{self.title} ({self.id})'.format(self=self)
 
@@ -30,6 +33,11 @@ class PageLink(models.Model):
     )
     name = models.TextField()
 
+    items = models.ManyToManyField('book.Item', blank=True)  # noqa: WPS110
+
+    class Meta:
+        unique_together = ['from_page', 'to_page']
+
     def __str__(self):
         return (
             '{self.from_page.title} ➝ {self.to_page.title} '
@@ -38,5 +46,30 @@ class PageLink(models.Model):
             )
         )
 
+    def has_all_needed(self, items):
+        return all(i in items for i in self.items.all())
+
+
+class BookProgress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE)
+
+    items = models.ManyToManyField('book.Item', blank=True)  # noqa: WPS110
+
     class Meta:
-        unique_together = ['from_page', 'to_page']
+        unique_together = ['user', 'book']
+
+    @classmethod
+    def start_reading(cls, user, book):
+        progress = BookProgress(user=user, book=book, book_page=book.first_page)
+        progress.save()
+        return progress
+
+
+class Item(models.Model):
+    name = models.TextField()
+
+    def __str__(self):
+        return '{self.name}'.format(self=self)

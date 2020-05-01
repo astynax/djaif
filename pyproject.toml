@@ -16,6 +16,7 @@ black = "^19.10b0"
 
 [tool.black]
 skip-string-normalization=true
+line-length=80
 
 [build-system]
 requires = ["poetry>=0.12"]
