@@ -11,4 +11,5 @@ urlpatterns = [
         views.take_item,
         name='take',
     ),
+    path('book/<int:book_id>/map.svg', views.view_book_map),
 ]

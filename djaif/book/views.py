@@ -1,7 +1,10 @@
 from functools import wraps
 
+from graphviz import Digraph
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.http import FileResponse
 
 from djaif.book import models
 
@@ -83,3 +86,38 @@ def take_item(request, progress, book_id, page_id, item_id):
     return redirect(
         reverse('page', kwargs={'book_id': book_id, 'page_id': page_id}),
     )
+
+
+def view_book_map(request, book_id):
+    book = get_object_or_404(models.Book, id=book_id)
+
+    g = Digraph('Map', filename='map.gv', directory='/tmp')
+
+    def pid(page):
+        return 'page_{id}'.format(id=page.id)
+
+    for page in book.bookpage_set.all():
+        g.node(
+            pid(page),
+            label='\n'.join(
+                [str(page.id), page.title] + [
+                    i.name for i in page.items.all()
+                ]
+            ),
+            tooltip=page.body,
+            href='/admin/book/bookpage/{}/change'.format(page.id),
+        )
+
+    for link in models.PageLink.objects.filter(
+        from_page__book_id=book_id,
+    ).all():
+        g.edge(pid(link.from_page), pid(link.to_page), label='\n'.join(
+            [str(link.id), link.name[:10]] + [
+                i.name for i in link.items.all()
+            ]),
+            labeltooltip=link.name,
+            labelhref='/admin/book/pagelink/{}/change'.format(link.id),
+        )
+
+    g.render(quiet=True, view=False, format='svg')
+    return FileResponse(open('/tmp/map.gv.svg', 'rb'))

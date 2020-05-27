@@ -1,0 +1,7 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+{% block after_related_objects %}
+<a target="_blank" href="/book/{{ original.pk }}/map.svg">
+  <img src="/book/{{ original.pk }}/map.svg"/>
+</a>
+{% endblock %}
