@@ -9,6 +9,10 @@ from django.http import FileResponse
 from djaif.book import models
 
 
+def _return_to(book_id):
+    return redirect(reverse('book', kwargs={'book_id': book_id}))
+
+
 def on_progress(view):
     @wraps(view)  # noqa: WPS430
     def inner(request, book_id, **kwargs):
@@ -32,33 +36,19 @@ def view_books(request):
         context={'books': models.Book.objects.all()},
     )
 
-
 def view_book(request, book_id):
     book = get_object_or_404(models.Book, id=book_id)
-    if not book.first_page:
-        return render(request, 'book.html', context={'book': book})
+    assert book.first_page
     try:
         progress = models.BookProgress.objects.get(
             book=book, user=request.user,
         )
     except models.BookProgress.DoesNotExist:
         progress = models.BookProgress.start_reading(
-            user=request.user, book=book,
+            book=book, user=request.user,
         )
-    return redirect(
-        reverse(
-            'page',
-            kwargs={'book_id': book.id, 'page_id': progress.book_page.id},
-        ),
-    )
 
-
-@on_progress
-def view_page(request, progress, book_id, page_id):
-    page = get_object_or_404(models.BookPage, book__id=book_id, id=page_id)
-
-    progress.book_page = page
-    progress.save()
+    page = progress.book_page
 
     links = [
         (link, link.has_all_needed(list(progress.items.all())))
@@ -78,14 +68,57 @@ def view_page(request, progress, book_id, page_id):
 
 
 @on_progress
-def take_item(request, progress, book_id, page_id, item_id):
+def go_to(request, progress, book_id, pagelink_id):
+    link = get_object_or_404(models.PageLink, id=pagelink_id)
+    if (
+        link.from_page.id == progress.book_page.id
+        and
+        link.has_all_needed(progress.items.all())
+    ):
+        progress.book_page = link.to_page
+        progress.save()
+    return _return_to(book_id)
+
+
+@on_progress
+def take(request, progress, book_id, item_id):
     item = get_object_or_404(models.Item, id=item_id)  # noqa: WPS110
 
-    progress.items.add(item)
+    if item in progress.book_page.items.all():
+        progress.items.add(item)
 
-    return redirect(
-        reverse('page', kwargs={'book_id': book_id, 'page_id': page_id}),
+    return _return_to(book_id)
+
+
+@on_progress
+def view_saves(request, progress, book_id):
+    saves = progress.progresssave_set.order_by('-updated_at').all()
+    return render(
+        request,
+        'saves.html',
+        context={
+            'book': progress.book,
+            'page': progress.book_page,
+            'saves': saves,
+        },
     )
+
+
+@on_progress
+def save_to(request, progress, book_id, save_id=None):
+    progress.save_to(save_id)
+    return redirect(reverse('saves', kwargs={'book_id': book_id}))
+
+
+@on_progress
+def load_from(request, progress, book_id, save_id):
+    progress.load_from(save_id)
+    return _return_to(book_id)
+
+
+def delete_save(request, book_id, save_id):
+    models.ProgressSave.objects.get(id=save_id).delete()
+    return redirect(reverse('saves', kwargs={'book_id': book_id}))
 
 
 def view_book_map(request, book_id):

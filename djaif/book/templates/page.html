@@ -14,7 +14,7 @@
     <ul>
       {% for item in page_items %}
       <li>
-        <a href="{% url 'take' page.book.id page.id item.id %}">
+        <a href="{% url 'take' page.book.id item.id %}">
           {{ item.name }}
         </a>
       </li>
@@ -26,7 +26,7 @@
       {% for link, passable in links %}
       <li>
         {% if passable %}
-        <a href="{% url 'page' page.book.id link.to_page.id %}">
+        <a href="{% url 'go_to' page.book.id link.id %}">
           {{ link.name }}
         </a>
         {% else %}
@@ -45,5 +45,7 @@
       {% endfor %}
     </ul>
     {% endif %}
+    <hr />
+    <a href="{% url 'saves' page.book.id %}">Сохранения</a>
   </body>
 </html>

@@ -67,6 +67,35 @@ class BookProgress(models.Model):
         progress.save()
         return progress
 
+    def save_to(self, save_id):
+        if save_id is None:
+            state = ProgressSave.objects.create(
+                progress=self,
+                book_page=self.book_page,
+            )
+            state.items.set(self.items.all())
+        else:
+            state = ProgressSave.objects.get(id=save_id)
+            state.book_page=self.book_page
+            state.save()
+            state.items.set(self.items.all())
+
+    def load_from(self, save_id):
+        state = ProgressSave.objects.get(id=save_id)
+        self.book_page=state.book_page
+        self.save()
+        self.items.set(state.items.all())
+
+
+class ProgressSave(models.Model):
+    progress = models.ForeignKey(BookProgress, on_delete=models.CASCADE)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE)
+
+    items = models.ManyToManyField('book.Item', blank=True)  # noqa: WPS110
+
 
 class Item(models.Model):
     name = models.TextField()
