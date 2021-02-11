@@ -3,9 +3,8 @@ from functools import wraps
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from graphviz import Digraph
 
-from djaif.book import models
+from djaif.book import book_map, models
 
 
 def _return_to(book_id):
@@ -124,34 +123,4 @@ def delete_save(request, book_id, save_id):
 
 def view_book_map(request, book_id):
     book = get_object_or_404(models.Book, id=book_id)
-
-    g = Digraph('Map', filename='map.gv', directory='/tmp')
-
-    def pid(page):
-        return 'page_{id}'.format(id=page.id)
-
-    for page in book.bookpage_set.all():
-        g.node(
-            pid(page),
-            label='\n'.join(
-                [str(page.id), page.title] + [
-                    i.name for i in page.items.all()
-                ]
-            ),
-            tooltip=page.body,
-            href='/admin/book/bookpage/{}/change'.format(page.id),
-        )
-
-    for link in models.PageLink.objects.filter(
-        from_page__book_id=book_id,
-    ).all():
-        g.edge(pid(link.from_page), pid(link.to_page), label='\n'.join(
-            [str(link.id), link.name[:10]] + [
-                i.name for i in link.items.all()
-            ]),
-            labeltooltip=link.name,
-            labelhref='/admin/book/pagelink/{}/change'.format(link.id),
-        )
-
-    g.render(quiet=True, view=False, format='svg')
-    return FileResponse(open('/tmp/map.gv.svg', 'rb'))
+    return FileResponse(book_map.book_map(book), filename='map.svg')
