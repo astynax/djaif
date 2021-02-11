@@ -1,10 +1,9 @@
 from functools import wraps
 
-from graphviz import Digraph
-
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.http import FileResponse
+from graphviz import Digraph
 
 from djaif.book import models
 
@@ -36,9 +35,11 @@ def view_books(request):
         context={'books': models.Book.objects.all()},
     )
 
+
 def view_book(request, book_id):
     book = get_object_or_404(models.Book, id=book_id)
-    assert book.first_page
+    if not book.first_page:
+        raise ValueError("Book {0.id} hasn't a first page!")
     try:
         progress = models.BookProgress.objects.get(
             book=book, user=request.user,

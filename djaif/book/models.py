@@ -76,13 +76,13 @@ class BookProgress(models.Model):
             state.items.set(self.items.all())
         else:
             state = ProgressSave.objects.get(id=save_id)
-            state.book_page=self.book_page
+            state.book_page = self.book_page
             state.save()
             state.items.set(self.items.all())
 
     def load_from(self, save_id):
         state = ProgressSave.objects.get(id=save_id)
-        self.book_page=state.book_page
+        self.book_page = state.book_page  # noqa: WPS601
         self.save()
         self.items.set(state.items.all())
 
