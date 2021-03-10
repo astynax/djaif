@@ -1,5 +1,6 @@
 from functools import wraps
 
+from django.db import transaction
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -62,7 +63,16 @@ def view_book(request, book_id):
             'page': page,
             'progress': progress,
             'links': links,
-            'page_items': page.items.exclude(id__in=progress.items.only('id')),
+            'page_items': page.items.exclude(
+                id__in=progress.items.only('id'),
+            ).exclude(
+                id__in=progress.droppeditem_set.values_list(
+                    'item__id', flat=True,
+                ),
+            ).all(),
+            'dropped_items': progress.droppeditem_set.filter(
+                book_page=page,
+            ).all(),
         },
     )
 
@@ -81,13 +91,47 @@ def go_to(request, progress, book_id, pagelink_id):
 
 
 @on_progress
-def take(request, progress, book_id, item_id):
+def take(request, progress, item_id, **kwargs):
     item = get_object_or_404(models.Item, id=item_id)  # noqa: WPS110
 
     if item in progress.book_page.items.all():
         progress.items.add(item)
 
-    return _return_to(book_id)
+    return _return_to(progress.book.id)
+
+
+@on_progress
+def drop(request, progress, item_id, **kwargs):
+    item = get_object_or_404(models.Item, id=item_id)  # noqa: WPS110
+
+    if item in progress.items.all():
+        with transaction.atomic():
+            models.DroppedItem(
+                item=item,
+                book_page=progress.book_page,
+                book_progress=progress,
+            ).save()
+            progress.items.remove(item)
+
+    return _return_to(progress.book.id)
+
+
+@on_progress
+def take_back(request, progress, dropped_item_id, **kwargs):
+    dropped_item = get_object_or_404(
+        models.DroppedItem, id=dropped_item_id,
+    )  # noqa: WPS110
+
+    if (
+        dropped_item.book_page.id == progress.book_page.id
+        and
+        dropped_item.book_progress.id == progress.id
+    ):
+        with transaction.atomic():
+            progress.items.add(dropped_item.item)
+            dropped_item.delete()
+
+    return _return_to(progress.book.id)
 
 
 @on_progress

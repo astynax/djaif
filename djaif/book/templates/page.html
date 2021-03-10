@@ -21,6 +21,19 @@
       {% endfor %}
     </ul>
     {% endif %}
+    {% if dropped_items %}
+    <h3>Брошено вами ранее</h3>
+    <ul>
+      {% for dropped_item in dropped_items %}
+      <li>
+        {{ dropped_item.item.name }}
+        <a href="{% url 'take_back' page.book.id dropped_item.id %}">
+          [Подобрать]
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
     <h3>Куда податься?</h3>
     <ul>
       {% for link, passable in links %}
@@ -41,6 +54,9 @@
       {% for item in progress.items.all %}
       <li>
         {{ item.name }}
+        <a href="{% url 'drop' page.book.id item.id %}">
+          [Выбросить]
+        </a>
       </li>
       {% endfor %}
     </ul>

@@ -6,8 +6,14 @@ urlpatterns = [
     path('', views.view_books),
     path('book/<int:book_id>', views.view_book, name='book'),
     path('book/<int:book_id>/go/<int:pagelink_id>', views.go_to, name='go_to'),
-    path('book/<int:book_id>/take/<int:item_id>', views.take, name='take'),
     path('book/<int:book_id>/saves', views.view_saves, name='saves'),
+    path('book/<int:book_id>/take/<int:item_id>', views.take, name='take'),
+    path('book/<int:book_id>/drop/<int:item_id>', views.drop, name='drop'),
+    path(
+        'book/<int:book_id>/take_back/<int:dropped_item_id>',
+        views.take_back,
+        name='take_back',
+    ),
     path(
         'book/<int:book_id>/saves/new',
         views.save_to,

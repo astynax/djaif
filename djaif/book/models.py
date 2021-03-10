@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
 
 
 # Create your models here.
@@ -67,6 +67,7 @@ class BookProgress(models.Model):
         progress.save()
         return progress
 
+    @transaction.atomic
     def save_to(self, save_id):
         if save_id is None:
             state = ProgressSave.objects.create(
@@ -79,12 +80,27 @@ class BookProgress(models.Model):
             state.book_page = self.book_page
             state.save()
             state.items.set(self.items.all())
+            state.droppeditemsave_set.all().delete()
+        for di in self.droppeditem_set.all():
+            DroppedItemSave(
+                item=di.item,
+                book_page=di.book_page,
+                progress_save=state,
+            ).save()
 
+    @transaction.atomic
     def load_from(self, save_id):
         state = ProgressSave.objects.get(id=save_id)
         self.book_page = state.book_page  # noqa: WPS601
         self.save()
         self.items.set(state.items.all())
+        self.droppeditem_set.all().delete()
+        for dis in state.droppeditemsave_set.all():
+            DroppedItem(
+                item=dis.item,
+                book_page=dis.book_page,
+                book_progress=self,
+            ).save()
 
 
 class ProgressSave(models.Model):
@@ -102,3 +118,18 @@ class Item(models.Model):
 
     def __str__(self):
         return '{self.name}'.format(self=self)
+
+
+class DroppedItem(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE)
+    book_progress = models.ForeignKey(BookProgress, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{self.item.name} ({self.book_page.title})'.format(self=self)
+
+
+class DroppedItemSave(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE)
+    progress_save = models.ForeignKey(ProgressSave, on_delete=models.CASCADE)
