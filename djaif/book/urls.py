@@ -34,5 +34,25 @@ urlpatterns = [
         views.delete_save,
         name='delete_save',
     ),
+    path(
+        'book/<int:book_id>/notes/add',
+        views.add_note,
+        name='add_note',
+    ),
+    path(
+        'book/<int:book_id>/notes/delete/<int:note_id>',
+        views.delete_note,
+        name='delete_note',
+    ),
+    path(
+        'book/<int:book_id>/notes/toggle/<int:note_id>',
+        views.toggle_note,
+        name='toggle_note',
+    ),
+    path(
+        'book/<int:book_id>/notes/update/<int:note_id>',
+        views.update_note,
+        name='update_note',
+    ),
     path('book/<int:book_id>/map.svg', views.view_book_map),
 ]

@@ -1,6 +1,7 @@
 from functools import wraps
 
 from django.db import transaction
+from django.db.models import F, Func  # noqa: WPS347
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -73,6 +74,28 @@ def view_book(request, book_id):
             'dropped_items': progress.droppeditem_set.filter(
                 book_page=page,
             ).all(),
+            'notesets': [
+                (
+                    'pinned',
+                    progress.note_set.filter(
+                        pinned=True,
+                    ).order_by('-updated_at').all(),
+                ),
+                (
+                    'page',
+                    progress.note_set.filter(
+                        page=page, pinned=False,
+                    ).order_by('-updated_at').all(),
+                ),
+                (
+                    'other',
+                    progress.note_set.exclude(
+                        page=page,
+                    ).filter(
+                        pinned=False,
+                    ).order_by('-updated_at').all(),
+                ),
+            ],
         },
     )
 
@@ -168,3 +191,54 @@ def delete_save(request, book_id, save_id):
 def view_book_map(request, book_id):
     book = get_object_or_404(models.Book, id=book_id)
     return FileResponse(book_map.book_map(book), filename='map.svg')
+
+
+@on_progress
+def add_note(request, progress, book_id):
+    if 'pin' in request.POST:
+        page = progress.book_page
+    else:
+        page = None
+    models.Note.objects.create(
+        progress=progress,
+        text=request.POST['text'],
+        page=page,
+    )
+    return _return_to(book_id)
+
+
+def delete_note(request, book_id, note_id):
+    models.Note.objects.get(id=note_id).delete()
+    return _return_to(book_id)
+
+
+def toggle_note(request, book_id, note_id):
+    models.Note.objects.filter(
+        id=note_id,
+    ).update(
+        pinned=Func(F('pinned'), function='NOT'),
+    )
+    return _return_to(book_id)
+
+
+@on_progress
+def update_note(request, progress, book_id, note_id):
+    note = get_object_or_404(models.Note, id=note_id)
+    if request.method == 'GET':
+        return render(
+            request,
+            'note.html',
+            context={
+                'page': progress.book_page,
+                'note': note,
+            },
+        )
+    note.text = request.POST['text']
+    note.pinned = 'pinned' in request.POST
+    note.page = {
+        'keep': note.page,
+        'change': progress.book_page,
+        'remove': None,
+    }[request.POST['page']]
+    note.save()
+    return _return_to(book_id)

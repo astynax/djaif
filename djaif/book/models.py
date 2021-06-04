@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.db import models, transaction
 
 
-# Create your models here.
 class Book(models.Model):
     title = models.CharField(name='title', max_length=100, unique=True)
     first_page = models.ForeignKey(
@@ -63,7 +62,9 @@ class BookProgress(models.Model):
 
     @classmethod
     def start_reading(cls, user, book):
-        progress = BookProgress(user=user, book=book, book_page=book.first_page)
+        progress = BookProgress(
+            user=user, book=book, book_page=book.first_page,
+        )
         progress.save()
         return progress
 
@@ -133,3 +134,17 @@ class DroppedItemSave(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE)
     progress_save = models.ForeignKey(ProgressSave, on_delete=models.CASCADE)
+
+
+class Note(models.Model):
+    text = models.TextField()
+    progress = models.ForeignKey(BookProgress, on_delete=models.CASCADE)
+    page = models.ForeignKey(
+        BookPage,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    pinned = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
