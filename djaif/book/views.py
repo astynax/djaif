@@ -1,4 +1,5 @@
 from functools import wraps
+from itertools import groupby
 
 from django.db import transaction
 from django.db.models import F, Func  # noqa: WPS347
@@ -39,6 +40,7 @@ def view_books(request):
 
 def view_book(request, book_id):
     book = get_object_or_404(models.Book, id=book_id)
+
     if not book.first_page:
         raise ValueError("Book {0.id} hasn't a first page!")
     try:
@@ -50,21 +52,41 @@ def view_book(request, book_id):
             book=book, user=request.user,
         )
 
-    page = progress.book_page
-
     links = [
         (link, link.has_all_needed(list(progress.items.all())))
-        for link in page.pagelink_set.all()
+        for link in progress.book_page.pagelink_set.all()
+    ]
+
+    notesets = [
+        (name, [
+            (
+                note.id,
+                note.text,
+                note.page.title if note.page else '',
+            )
+            for note in group
+        ])
+        for name, group in groupby(
+            progress.notes().select_related(
+                'page',
+            ).all(),
+            key=lambda note: (
+                'page' if note.key else
+                'pinned' if note.pinned else
+                'other'
+            ),
+        )
     ]
 
     return render(
         request,
         'page.html',
         context={
-            'page': page,
+            'page': progress.book_page,
             'progress': progress,
             'links': links,
-            'page_items': page.items.exclude(
+            'notesets': notesets,
+            'page_items': progress.book_page.items.exclude(
                 id__in=progress.items.only('id'),
             ).exclude(
                 id__in=progress.droppeditem_set.values_list(
@@ -72,30 +94,8 @@ def view_book(request, book_id):
                 ),
             ).all(),
             'dropped_items': progress.droppeditem_set.filter(
-                book_page=page,
+                book_page=progress.book_page,
             ).all(),
-            'notesets': [
-                (
-                    'pinned',
-                    progress.note_set.filter(
-                        pinned=True,
-                    ).order_by('-updated_at').all(),
-                ),
-                (
-                    'page',
-                    progress.note_set.filter(
-                        page=page, pinned=False,
-                    ).order_by('-updated_at').all(),
-                ),
-                (
-                    'other',
-                    progress.note_set.exclude(
-                        page=page,
-                    ).filter(
-                        pinned=False,
-                    ).order_by('-updated_at').all(),
-                ),
-            ],
         },
     )
 

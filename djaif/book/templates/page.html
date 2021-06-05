@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>{{ page.book.title }}: {{ page.title }}</title>
+    <link rel="stylesheet" href="/static/page.css" type="text/css" media="screen" />
+    <link rel="icon" sizes="64x64" href="/static/favicon.png" type="image/png" />
   </head>
   <body>
     <div class="main" style="display: flex;">
@@ -78,28 +80,19 @@
           <button type="submit">Добавить</button>
         </form>
         {% for name, noteset in notesets %}
-        <ul>
-          {% for note in noteset %}
+        <ul class="noteset noteset-{{ name }}">
+          {% for note_id, note_text, note_page_title in noteset %}
           <li>
-            <a href="{% url 'delete_note' page.book.id note.id %}">
-              [X]
-            </a>
-            <a href="{% url 'toggle_note' page.book.id note.id %}">
-              [📎]
-            </a>
-            <a href="{% url 'update_note' page.book.id note.id %}">
-              [🖉]
-            </a>
-            <pre>{{ note.text }}</pre>
-            {% if note.page and name == 'other' %}
-            ({{ note.page.title }})
+            <a href="{% url 'delete_note' page.book.id note_id %}">🚮</a>
+            <a href="{% url 'toggle_note' page.book.id note_id %}">📌</a>
+            <a href="{% url 'update_note' page.book.id note_id %}">🖉</a>
+            <pre>{{ note_text }}</pre>
+            {% if note_page_title and name == 'other' %}
+            ({{ note_page_title }})
             {% endif %}
           </li>
           {% endfor %}
         </ul>
-        {% if noteset %}
-        <hr>
-        {% endif %}
         {% endfor %}
       </div>
     </div>

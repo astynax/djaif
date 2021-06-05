@@ -103,6 +103,32 @@ class BookProgress(models.Model):
                 book_progress=self,
             ).save()
 
+    def notes(self):
+        """Return a prepared set of notes.
+
+        These notes will be annotated with relation to the
+        current page and will appear in order:
+
+        1. pinned notes (key=0, pinned=True)
+        2. current page notes (key=1)
+        3. other notes (key=0, pinned=False)
+
+        Within each group the notes will be ordered
+        by decreasing of 'updated_at'.
+        """
+        return Note.objects.filter(
+            progress=self,
+        ).annotate(
+            key=models.Count(
+                'page',
+                filter=models.Q(page=self.book_page),
+            ),
+        ).order_by(
+            '-pinned',
+            '-key',
+            '-updated_at',
+        )
+
 
 class ProgressSave(models.Model):
     progress = models.ForeignKey(BookProgress, on_delete=models.CASCADE)
