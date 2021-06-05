@@ -1,4 +1,52 @@
-.noteset {}
+body {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1 1;
+  display: flex;
+}
+
+.content {
+  flex: 1 1;
+  padding: 1em;
+  font-size: 150%;
+}
+
+.new-note {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar {
+  padding: 0.2em;
+  background-color: lightgray;
+  font-size: 120%;
+}
+
+.noteset {
+  padding: 0;
+  margin: 0;
+}
+
+.noteset > li {
+  list-style: none;
+  border-bottom: 1pt black solid;
+}
+
+.noteset > li > pre {
+  margin: 0;
+  padding: 0.5em;
+  font-family: Serif;
+}
+
+.noteset-other {
+  background-color: white;
+}
 
 .noteset-page {
   background-color: greenyellow;
