@@ -33,7 +33,7 @@ def on_progress(view):
 def view_books(request):
     return render(
         request,
-        'book_index.html',
+        'books.html',
         context={'books': models.Book.objects.all()},
     )
 
@@ -85,7 +85,6 @@ def view_book(request, book_id):
             'page': progress.book_page,
             'progress': progress,
             'links': links,
-            'notesets': notesets,
             'page_items': progress.book_page.items.exclude(
                 id__in=progress.items.only('id'),
             ).exclude(
@@ -96,6 +95,7 @@ def view_book(request, book_id):
             'dropped_items': progress.droppeditem_set.filter(
                 book_page=progress.book_page,
             ).all(),
+            'notesets': notesets,
         },
     )
 
@@ -164,7 +164,6 @@ def view_saves(request, progress, book_id):
         request,
         'saves.html',
         context={
-            'book': progress.book,
             'page': progress.book_page,
             'saves': saves,
         },
@@ -195,10 +194,7 @@ def view_book_map(request, book_id):
 
 @on_progress
 def add_note(request, progress, book_id):
-    if 'pin' in request.POST:
-        page = progress.book_page
-    else:
-        page = None
+    page = progress.book_page if 'pin' in request.POST else None
     models.Note.objects.create(
         progress=progress,
         text=request.POST['text'],

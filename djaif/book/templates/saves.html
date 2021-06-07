@@ -1,28 +1,18 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>{{ book.title }}: Сохранения</title>
-  </head>
-  <body>
-    <h1>
-      {{ book.title }}
-    </h1>
-    <h2>
-      {{ page.title }}
-    </h2>
-    <a href="{% url 'book' book.id %}">[Продолжить игру]</a>
-    <br/>
-    <a href="{% url 'save_new' book.id %}">[Новое сохранение]</a>
+{% extends "default.html" %}
+{% block title %}{{ book.title }}: Сохранения{% endblock %}
+{% block body %}
+  <div class="single-column">
+    <h1><a href="{% url 'book' page.book.id %}">{{ page.book.title }} ({{ page.title }})</a>: Сохранения</h1>
+    <a href="{% url 'save_new' page.book.id %}">[Новое сохранение]</a>
     <ul>
       {% for save in saves %}
-      <li>
-        <a href="{% url 'delete_save' book.id save.id %}">[Удалить]</a>
-        <a href="{% url 'load_from'   book.id save.id %}">[Загрузить]</a>
-        <a href="{% url 'save_to'     book.id save.id %}">[Заменить]</a>
-        [{{ save.updated_at|date:"Y.m.d H:i:s" }}] {{ save.book_page.title }}
-      </li>
+        <li>
+          <a href="{% url 'delete_save' page.book.id save.id %}">[Удалить]</a>
+          <a href="{% url 'load_from'   page.book.id save.id %}">[Загрузить]</a>
+          <a href="{% url 'save_to'     page.book.id save.id %}">[Заменить]</a>
+          [{{ save.updated_at|date:"Y.m.d H:i:s" }}] {{ save.book_page.title }}
+        </li>
       {% endfor %}
     </ul>
-  </body>
-</html>
+  </div>
+{% endblock %}

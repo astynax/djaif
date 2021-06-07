@@ -8,12 +8,12 @@
   <body>
     <ul>
       {% for book in books %}
-      <li><a href="book/{{ book.id }}">
-        {{ book.title }}
-        {% if book.cover_art %}
-        <img src="{{ book.cover_art.url }}" />
-        {% endif %}
-      </a></li>
+        <li><a href="book/{{ book.id }}">
+          {{ book.title }}
+          {% if book.cover_art %}
+            <img src="{{ book.cover_art.url }}" />
+          {% endif %}
+        </a></li>
       {% endfor %}
     </ul>
   </body>
