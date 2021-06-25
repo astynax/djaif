@@ -14,7 +14,7 @@ def book_map(book):
                 items='\n'.join(
                     '+ {id}:"{name}"'.format(
                         id=i.id, name=i.name[:10],
-                    ) for i in page.items.all(),
+                    ) for i in page.items.all()
                 ),
             ),
             tooltip=page.body,
@@ -32,7 +32,7 @@ def book_map(book):
                 items='\n'.join(
                     '? {id}:"{name}"'.format(
                         id=i.id, name=i.name[:10],
-                    ) for i in link.items.all(),
+                    ) for i in link.items.all()
                 ),
             ),
             labeltooltip=link.name,
