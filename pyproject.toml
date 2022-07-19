@@ -10,6 +10,7 @@ django = "^4.0.6"
 Pillow = "^9.2.0"
 graphviz = "^0.20"
 django-extensions = "^3.2.0"
+python-dotenv = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 wemake-python-styleguide = "^0.14.0"
