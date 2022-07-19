@@ -1,6 +1,6 @@
 .venv/
 .mypy_cache/
 __pycache__/
-db.sqlite3
+/db.sqlite3
 media/
 *.egg-info/
