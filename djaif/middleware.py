@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login
+from djaif.settings import SUPERUSER, PASSWORD
 
 
 def auto_login(get_response):
@@ -6,7 +7,7 @@ def auto_login(get_response):
 
         if not request.user.is_authenticated:
             user = authenticate(  # noqa: S106
-                username='admin', password='admin',
+                username=SUPERUSER, password=PASSWORD,
             )
             login(request, user)
 

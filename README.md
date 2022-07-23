@@ -10,9 +10,9 @@ This project is a software that I'am developing during [this series of YouTube s
 1. Clone.
 1. `poetry install`.
 1. `poetry run python manage.py migrate`.
-1. `poetry run python manage.py createsuperuser --name=admin` and set password to `admin` (TODO: make the password optional).
+1. `poetry run python manage.py createsuperuser --username=admin` and set password to `admin` (TODO: make the password optional).
 1. `poetry run python manage.py runserver`.
 
 ### DB Example
 
-You can copy `example/db.sqlite3` file to the project's root and possibly run some migrations (`manage.py mugrate`). Then you'll be able to play example game. It is pretty incomplete but it shows most of engine features.
+You can copy `example/db.sqlite3` file to the project's root and possibly run some migrations (`manage.py migrate`). Then you'll be able to play example game. It is pretty incomplete but it shows most of engine features.
