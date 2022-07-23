@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DJANGO_SETTINGS_MODULE = 'djaif.settings'
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False')
+DEBUG = bool(os.getenv('DEBUG'))
 SUPERUSER = os.getenv('SUPERUSER', 'admin')
 PASSWORD = os.getenv('PASSWORD', 'admin')
 
