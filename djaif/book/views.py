@@ -189,7 +189,11 @@ def delete_save(request, book_id, save_id):
 
 def view_book_map(request, book_id):
     book = get_object_or_404(models.Book, id=book_id)
-    return FileResponse(book_map.book_map(book), filename='map.svg')
+    return render(
+        request,
+        'map.html',
+        context={'book': book_map.book_map(book)},
+    )
 
 
 @on_progress
