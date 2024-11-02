@@ -1,6 +1,6 @@
 from graphviz import Digraph
 
-from djaif.book import models
+from . import models
 
 
 def book_map(book):

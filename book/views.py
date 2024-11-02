@@ -7,7 +7,7 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from djaif.book import book_map, models
+from . import book_map, models
 
 
 def _return_to(book_id):

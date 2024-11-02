@@ -7,18 +7,13 @@ load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
-
 DJANGO_SETTINGS_MODULE = 'djaif.settings'
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = bool(os.getenv('DEBUG'))
 SUPERUSER = os.getenv('SUPERUSER', 'admin')
 PASSWORD = os.getenv('PASSWORD', 'admin')
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', [])
 
 
 # Application definition
@@ -31,7 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'djaif.book',
+    'book',
 ]
 
 MIDDLEWARE = [

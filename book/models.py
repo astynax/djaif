@@ -5,7 +5,7 @@ from django.db import models, transaction
 class Book(models.Model):
     title = models.CharField(name='title', max_length=100, unique=True)
     first_page = models.ForeignKey(
-        'BookPage', null=True, on_delete=models.SET_NULL,
+        'BookPage', null=True, blank=True, on_delete=models.SET_NULL,
         related_name='first_name',
     )
     cover_art = models.ImageField(null=True, blank=True)

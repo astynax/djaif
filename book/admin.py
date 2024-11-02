@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from djaif.book import models
+from . import models
 
 
 class Admin(admin.ModelAdmin):

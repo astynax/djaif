@@ -1,4 +1,4 @@
-MANAGE := poetry run python manage.py
+MANAGE := uv run python manage.py
 
 run:
 	$(MANAGE) runserver

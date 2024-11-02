@@ -6,12 +6,12 @@ This project is a software that I'am developing during [this series of YouTube s
 
 ### How to
 
-1. Get [poetry](https://python-poetry.org/).
-1. Clone.
-1. `poetry install`.
-1. `poetry run python manage.py migrate`.
-1. `poetry run python manage.py createsuperuser --username=admin` and set password to `admin` (TODO: make the password optional).
-1. `poetry run python manage.py runserver`.
+1. Get UV
+1. Clone
+1. `uv sync`
+1. `uv run python manage.py migrate`.
+1. `uv run python manage.py createsuperuser --username=admin` and set password to `admin` (TODO: make the password optional).
+1. `uv run python manage.py runserver`.
 
 ### DB Example
 

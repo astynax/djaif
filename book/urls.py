@@ -1,6 +1,7 @@
 from django.urls import path
 
-from djaif.book import views
+from . import views
+
 
 urlpatterns = [
     path('', views.view_books),
